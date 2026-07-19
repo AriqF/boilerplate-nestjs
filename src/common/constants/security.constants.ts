@@ -2,6 +2,5 @@
 export const API_KEY_HEADER = 'x-api-key';
 export const TIMESTAMP_HEADER = 'x-timestamp';
 
-/** Swagger security scheme identifiers (referenced by @ApiSecuredEndpoint). */
+/** Swagger security scheme identifier (referenced by @ApiSecuredEndpoint). */
 export const API_KEY_SECURITY = 'api-key';
-export const TIMESTAMP_SECURITY = 'timestamp';
