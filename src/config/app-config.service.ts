@@ -8,6 +8,15 @@ export interface RedisConfig {
   password?: string;
 }
 
+export interface PostgresConfig {
+  host: string;
+  port: number;
+  database: string;
+  username: string;
+  password?: string;
+  ssl: boolean;
+}
+
 /**
  * Typed, single source of truth for reading configuration. Feature code injects this
  * instead of touching `process.env` or `ConfigService` directly (parsing lives here once).
@@ -33,6 +42,17 @@ export class AppConfigService {
       host: this.config.get('REDIS_HOST', { infer: true }),
       port: this.config.get('REDIS_PORT', { infer: true }),
       password: this.config.get('REDIS_PASSWORD', { infer: true }),
+    };
+  }
+
+  get postgres(): PostgresConfig {
+    return {
+      host: this.config.get('POSTGRES_HOST', { infer: true }),
+      port: this.config.get('POSTGRES_PORT', { infer: true }),
+      database: this.config.get('POSTGRES_DB', { infer: true }),
+      username: this.config.get('POSTGRES_USER', { infer: true }),
+      password: this.config.get('POSTGRES_PASSWORD', { infer: true }),
+      ssl: this.config.get('POSTGRES_SSL', { infer: true }),
     };
   }
 
