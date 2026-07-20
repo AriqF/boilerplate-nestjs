@@ -36,6 +36,27 @@ pnpm test -- src/path/to/file.spec.ts
 pnpm test -- -t "name of the test"
 ```
 
+### TypeORM migrations
+
+Scripts embed `-d src/database/data-source.ts` (the standalone CLI DataSource, which
+loads `.env` via Node's `process.loadEnvFile`), so you only append a name/path.
+
+```bash
+# Generate from entity↔DB diff — writes <timestamp>-AddUserTable.ts.
+# Needs a reachable DB + .env creds; prints "No changes..." if nothing differs.
+pnpm migration:generate src/database/migrations/AddUserTable
+# (if pnpm swallows the arg: pnpm migration:generate -- src/database/migrations/AddUserTable)
+
+pnpm migration:create   src/database/migrations/BackfillNoteStatus  # empty skeleton (no DB)
+pnpm migration:run       # apply pending  (schema write — needs approval)
+pnpm migration:revert    # undo the last applied migration
+pnpm typeorm migration:show   # list applied [X] / pending [ ]
+```
+
+Loop: edit an entity → `migration:generate <path>` → **review the `up`/`down`** (generation
+can emit destructive `DROP`s on drift) → `migration:run`. Prefer the TypeORM schema builder
+(`Table`/`queryRunner`) over raw SQL in hand-written migrations.
+
 ## Architecture & conventions
 
 - **Folder layout** (target convention — create dirs as goals land):
