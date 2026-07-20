@@ -30,6 +30,16 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
+      // Interfaces are PascalCase and must NOT use the C#-style `I` prefix — the
+      // declaration kind (interface vs type vs class) is not part of the public contract.
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'interface',
+          format: ['PascalCase'],
+          custom: { regex: '^I[A-Z]', match: false },
+        },
+      ],
       "prettier/prettier": ["error", { endOfLine: "auto" }],
     },
   },
