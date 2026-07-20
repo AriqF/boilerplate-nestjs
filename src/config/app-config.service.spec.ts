@@ -39,6 +39,37 @@ describe('AppConfigService', () => {
     });
   });
 
+  it('builds the postgres config object with defaults', () => {
+    expect(buildService({}).postgres).toEqual({
+      host: 'localhost',
+      port: 5432,
+      database: 'postgres',
+      username: 'postgres',
+      password: undefined,
+      ssl: false,
+    });
+  });
+
+  it('coerces POSTGRES_PORT and POSTGRES_SSL from strings', () => {
+    const service = buildService({
+      POSTGRES_HOST: 'db.internal',
+      POSTGRES_PORT: '5433',
+      POSTGRES_DB: 'app',
+      POSTGRES_USER: 'app_user',
+      POSTGRES_PASSWORD: 'secret',
+      POSTGRES_SSL: 'true',
+    });
+
+    expect(service.postgres).toEqual({
+      host: 'db.internal',
+      port: 5433,
+      database: 'app',
+      username: 'app_user',
+      password: 'secret',
+      ssl: true,
+    });
+  });
+
   it('parses API_KEYS into a trimmed, non-empty array', () => {
     expect(buildService({ API_KEYS: 'a, b ,c' }).apiKeys).toEqual([
       'a',
