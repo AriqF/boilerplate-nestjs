@@ -1,5 +1,6 @@
-import { plainToInstance, Type } from 'class-transformer';
+import { plainToInstance, Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -43,6 +44,33 @@ export class EnvConfig {
   @IsOptional()
   @IsString()
   REDIS_PASSWORD?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  POSTGRES_HOST = 'localhost';
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  POSTGRES_PORT = 5432;
+
+  @IsString()
+  @IsNotEmpty()
+  POSTGRES_DB = 'postgres';
+
+  @IsString()
+  @IsNotEmpty()
+  POSTGRES_USER = 'postgres';
+
+  @IsOptional()
+  @IsString()
+  POSTGRES_PASSWORD?: string;
+
+  /** Enable TLS to the database (managed providers usually require it). */
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  POSTGRES_SSL = false;
 
   /** Comma-separated accepted API keys. Read as an array via AppConfigService. */
   @IsString()

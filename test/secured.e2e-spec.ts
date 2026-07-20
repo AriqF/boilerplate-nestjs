@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
@@ -10,14 +11,32 @@ import {
   SuccessResponse,
 } from './../src/common/dto/response.dto';
 
+// Load .env so the real Redis/Postgres creds are available (Jest doesn't load it for us).
+if (existsSync('.env')) {
+  process.loadEnvFile('.env');
+}
+
 const API_KEY = 'e2e-secret-key';
 
-// Guard-relevant config only; overrides the real service so the test is independent
-// of the ambient environment (the shell may already export API_KEYS).
+// Force a known API key (so the test is independent of the ambient API_KEYS the shell
+// may export), but source the real infra connection creds from .env — the guard tests
+// still boot the full AppModule, which connects to Redis and Postgres.
 const configStub = {
   apiKeys: [API_KEY],
   apiTimestampToleranceSec: 300,
-  redis: { host: '127.0.0.1', port: 6379 },
+  redis: {
+    host: process.env.REDIS_HOST ?? '127.0.0.1',
+    port: Number(process.env.REDIS_PORT ?? 6379),
+    password: process.env.REDIS_PASSWORD,
+  },
+  postgres: {
+    host: process.env.POSTGRES_HOST ?? 'localhost',
+    port: Number(process.env.POSTGRES_PORT ?? 5432),
+    database: process.env.POSTGRES_DB ?? 'postgres',
+    username: process.env.POSTGRES_USER ?? 'postgres',
+    password: process.env.POSTGRES_PASSWORD,
+    ssl: process.env.POSTGRES_SSL === 'true',
+  },
 } as unknown as AppConfigService;
 
 describe('ApiKeyGuard (e2e)', () => {
